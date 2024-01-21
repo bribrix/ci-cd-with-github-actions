@@ -1,17 +1,26 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time
 import unittest
 
 class TestAppE2E(unittest.TestCase):
     def setUp(self):
-        chrome_options = Options()
-        chrome_options.add_argument("disable-infobars")
-        self.driver = webdriver.Chrome(options=chrome_options)
+        # Options for Chrome
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
 
-        self.driver.get("http://127.0.0.1:5000/")
-        time.sleep(1)
+        # Connect to the remote Chrome
+        self.driver = webdriver.Remote(
+            command_executor='http://chrome:4444/wd/hub',
+            desired_capabilities=DesiredCapabilities.CHROME,
+            options=chrome_options
+        )
+
+        # Adjust the URL to the web service within Docker
+        self.driver.get("http://web:5000/")
+        time.sleep(2)
 
     def test_add_update_delete_item(self):
         # Add item
