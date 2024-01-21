@@ -17,6 +17,7 @@ def staging():
         os.system("git pull origin staging")
         os.system("pip3 install -r requirements.txt")
         os.system("python -m unittest test-app.py")
+        os.system("python test-end2end-app.py")
         response = 'Test run successfuly'
 
     return response
