@@ -63,28 +63,7 @@ class TestAppE2E(unittest.TestCase):
 
         # check if the item is updated
         self.assertIn('Updated E2E Item', self.driver.page_source)
-
-        # # quit the driver
-        # self.driver.quit()
-
         pass
-
-    # def test_read_page(self):
-    #     # add some items first
-    #     for i in range(0, 3):
-    #         input_field = self.driver.find_element(by='name', value='item')
-    #         input_field.send_keys(f'New E2E Item {i}')
-    #         input_field.send_keys(Keys.RETURN)
-    #         self.assertIn(f'New E2E Item {i}', self.driver.page_source)
-
-    #     # check if the page is loaded
-
-    #     for i in range(0, 3):
-    #         self.assertIn(f'New E2E Item {i}', self.driver.page_source)
-
-    #     # # quit the driver
-    #     # self.driver.quit()
-    #     pass
         
     def tearDown(self):
         self.driver.quit()
