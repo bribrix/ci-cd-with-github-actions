@@ -29,10 +29,10 @@ jobs:
         done
 
     - name: Run unit tests
-      run: docker-compose -f docker-compose.yml run --no-deps test-app
+      run: docker-compose -f docker-compose.yml run --no-deps unit-test
 
     - name: Run integration tests
-      run: docker-compose -f docker-compose.yml run --no-deps test-end2end-app
+      run: docker-compose -f docker-compose.yml run --no-deps integration-test
 
     - name: Tear down Docker Compose
       if: always()
