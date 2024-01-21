@@ -31,8 +31,6 @@ pip install -r requirements.txt
 
 python test-app.py
 
-sleep 5
-
 # deactivate the virtual environment
 deactivate
 
