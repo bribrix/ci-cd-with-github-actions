@@ -1,76 +1,74 @@
-name: DockerHub Deploy Python application
+name: Python application
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "release" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "release" ]
+
+permissions:
+  contents: read
 
 jobs:
+
   test:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10'
+    - name: Set up and run necessary Docker Compose services
+      run: docker-compose -f docker-compose.yml up -d --no-deps chrome web
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Check if Chrome is up and running
+      run: |
+        until docker-compose -f docker-compose.yml exec -T web curl -f http://chrome:4444/wd/hub/status; do
+            echo "Waiting for Chrome service..."
+            sleep 5
+        done
 
-      - name: Build the Docker image
-        run: |
-          docker build -t my-flask-app .
+    - name: Run unit tests
+      run: docker-compose -f docker-compose.yml run --no-deps unit-test
 
-      - name: Run the Flask application
-        run: |
-          docker run -d -p 5000:5000 --name flaskapp my-flask-app
+    - name: Run integration tests
+      run: docker-compose -f docker-compose.yml run --no-deps integration-test
 
-      - name: Run tests in the Docker container
-        run: |
-          docker run --rm my-flask-app python -m unittest discover
+    - name: Tear down Docker Compose
+      if: always()
+      run: docker-compose -f docker-compose.yml down
 
-      - name: Cleanup
-        if: always()
-        run: docker rm -f flaskapp
+  build:
+    runs-on: ubuntu-latest
 
-  push_to_registry:
     needs: test
-    name: Push Docker image to Docker Hub
-    runs-on: ubuntu-latest
-
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+    - uses: actions/checkout@v3
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: bribrix/second_repository
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Docker Hub
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+      with:
+        images: bribrix/second_repository
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5.1.0
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
