@@ -29,7 +29,7 @@ jobs:
         done
 
     - name: Run unit tests
-      run: docker-compose -f docker-compose.yml run --no-deps test-app
+      run: docker-compose -f docker-compose.yml run --no-deps test-app.py
 
     - name: Run integration tests
       run: docker-compose -f docker-compose.yml run --no-deps test-end2end-app
