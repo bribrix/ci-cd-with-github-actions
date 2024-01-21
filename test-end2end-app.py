@@ -6,20 +6,21 @@ import unittest
 
 class TestAppE2E(unittest.TestCase):
     def setUp(self):
-        # Options for Chrome
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
+        # Set Chrome options
 
-        # Connect to the remote Chrome
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox') # Disables the sandbox for all process types that are normally sandboxed.
+        options.add_argument('--disable-dev-shm-usage') # Overcomes limited resource problems.
+        options.add_argument('--disable-gpu') # Applicable to windows os only
+        options.add_argument('--remote-debugging-port=9222')
+
+
         self.driver = webdriver.Remote(
             command_executor='http://chrome:4444/wd/hub',
-            desired_capabilities=DesiredCapabilities.CHROME,
-            options=chrome_options
-        )
-
-        # Adjust the URL to the web service within Docker
+            options=options)
         self.driver.get("http://web:5000/")
+        self.driver.maximize_window()
         time.sleep(2)
 
     def test_add_update_delete_item(self):
