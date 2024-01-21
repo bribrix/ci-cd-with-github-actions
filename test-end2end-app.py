@@ -21,7 +21,6 @@ class TestAppE2E(unittest.TestCase):
             options=options)
         self.driver.get("http://web:5000/")
         self.driver.maximize_window()
-        time.sleep(2)
 
     def test_add_update_delete_item(self):
         # Add item
@@ -45,7 +44,6 @@ class TestAppE2E(unittest.TestCase):
         self.assertNotIn('Updated E2E Item', self.driver.page_source)
 
     def tearDown(self):
-        time.sleep(10)  # 10 seconds of delay to see the result
         self.driver.quit()
 
 if __name__ == '__main__':
