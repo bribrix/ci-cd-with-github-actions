@@ -39,8 +39,7 @@ def deployment():
     # Check if the push is to the desired branch, e.g., 'refs/heads/testing'
     if ref == 'refs/heads/main':
         # this hook is coming from a push done to the "testing" branch
-        # Add your code logic here
-
+        # run deployment.bash script to deploy the app.py file
         command = ["bash", "deployment.bash"]
     
         output = subprocess.run(command, close_fds=True)
