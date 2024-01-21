@@ -1,8 +1,7 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-import time
 import unittest
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class TestAppE2E(unittest.TestCase):
     def setUp(self):
@@ -20,32 +19,75 @@ class TestAppE2E(unittest.TestCase):
             command_executor='http://chrome:4444/wd/hub',
             options=options)
         self.driver.get("http://web:5000/")
-        self.driver.maximize_window()
 
-    def test_add_update_delete_item(self):
-        # Add item
-        input_item = self.driver.find_element(By.NAME, 'item')
-        input_item.send_keys('New E2E Item')
-        button_add = self.driver.find_element(By.XPATH, '//button[text()="Add"]')
-        button_add.click()
+    def test_add_and_delete_item(self):
+        # you can use the driver to find elements in the page
+        # example:
+        input_field = self.driver.find_element(by='name', value='item')
+        # this refers to the 'name="item"' attribute of the html element
+        # checkout the rest of the methods in the documentation:
+        # https://selenium-python.readthedocs.io/locating-elements.html
+        # print(self.driver.page_source)
+        
+        # after you select your element, you can send it a key press:
+        input_field.send_keys('New E2E Item')
+        input_field.send_keys(Keys.RETURN)
+        
+        # and you can use the rest of the assetion methods as well:
         self.assertIn('New E2E Item', self.driver.page_source)
 
-        # Update item
-        input_update = self.driver.find_element(By.NAME, 'new_item')
-        input_update.send_keys('Updated E2E Item')
-        button_update = self.driver.find_element(By.XPATH, '//button[text()="Update"]' )
-        button_update.click()
-        self.assertIn('Updated E2E Item', self.driver.page_source)
-        
-        # Delete item
-        button_delete = self.driver.find_element(By.XPATH, '//a[text()="Delete"]')
-        button_delete.click()
+        # after inserting an item, you can also delete it:
+        delete_button = self.driver.find_element(by='link text', value='Delete')
+        delete_button.click()
         self.assertNotIn('New E2E Item', self.driver.page_source)
-        self.assertNotIn('Updated E2E Item', self.driver.page_source)
 
+        # # quit the driver
+        # self.driver.quit()
+        pass
+    
+    def test_update_item(self):
+
+        # add an item first
+        input_field = self.driver.find_element(by='name', value='item')
+        input_field.send_keys('New E2E Item')
+        input_field.send_keys(Keys.RETURN)
+
+        # check if the item is added
+        self.assertIn('New E2E Item', self.driver.page_source)
+
+        # then update it
+        update_input_field = self.driver.find_element(by='name', value='new_item')
+        update_input_field.send_keys('Updated E2E Item')
+        update_button = self.driver.find_element(by='xpath', value='/html/body/div[1]/ul/li[1]/form/button')
+        update_button.click()
+
+        # check if the item is updated
+        self.assertIn('Updated E2E Item', self.driver.page_source)
+
+        # # quit the driver
+        # self.driver.quit()
+
+        pass
+
+    # def test_read_page(self):
+    #     # add some items first
+    #     for i in range(0, 3):
+    #         input_field = self.driver.find_element(by='name', value='item')
+    #         input_field.send_keys(f'New E2E Item {i}')
+    #         input_field.send_keys(Keys.RETURN)
+    #         self.assertIn(f'New E2E Item {i}', self.driver.page_source)
+
+    #     # check if the page is loaded
+
+    #     for i in range(0, 3):
+    #         self.assertIn(f'New E2E Item {i}', self.driver.page_source)
+
+    #     # # quit the driver
+    #     # self.driver.quit()
+    #     pass
+        
     def tearDown(self):
         self.driver.quit()
 
 if __name__ == '__main__':
-    # Run the tests
     unittest.main()
