@@ -11,10 +11,7 @@ class TestAppE2E(unittest.TestCase):
         self.driver = webdriver.Chrome(options=chrome_options)
 
         self.driver.get("http://127.0.0.1:5000/")
-
-    def tearDown(self):
-        time.sleep(10)  # 10 seconds of delay to see the result
-        self.driver.quit()
+        time.sleep(1)
 
     def test_add_update_delete_item(self):
         # Add item
@@ -36,6 +33,10 @@ class TestAppE2E(unittest.TestCase):
         button_delete.click()
         self.assertNotIn('New E2E Item', self.driver.page_source)
         self.assertNotIn('Updated E2E Item', self.driver.page_source)
+
+    def tearDown(self):
+        time.sleep(10)  # 10 seconds of delay to see the result
+        self.driver.quit()
 
 if __name__ == '__main__':
     # Run the tests
