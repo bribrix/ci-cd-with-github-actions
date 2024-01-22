@@ -27,5 +27,8 @@ nohup flask run &
 echo "Python executable: $(which python)"
 
 
+
+
+
 # Exiting the script
 exit 0
